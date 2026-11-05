@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,6 +30,8 @@ import org.libsdl.app.SDLActivity;
  * loads the game image from the APK's assets.
  */
 public class HaloActivity extends SDLActivity {
+    private static final String TAG = "HaloCECustomEdition";
+
     /** lets system link's broadcasts in over Wi-Fi while the game runs */
     private WifiManager.MulticastLock multicastLock;
     /**
@@ -62,6 +66,44 @@ public class HaloActivity extends SDLActivity {
         acquireMulticastLock();
         // a new version looked for while the game starts
         Updater.start(this);
+
+        // ==========================================
+        // CREADO AUTOMÁTICAMENTE PARA HALO CE CUSTOM EDITION
+        // ==========================================
+        createModDirectories();
+    }
+
+    /**
+     * Crea automáticamente la carpeta de mapas original (intacta) 
+     * y la nueva estructura exclusiva para los mods del usuario.
+     */
+    private void createModDirectories() {
+        File baseDir = getExternalFilesDir(null);
+        if (baseDir != null) {
+            // 1. Asegurar que la carpeta de mapas original exista y no se altere
+            File mapsDir = new File(baseDir, "maps");
+            if (!mapsDir.exists()) {
+                boolean mapsCreated = mapsDir.mkdirs();
+                Log.i(TAG, "Carpeta 'maps' creada: " + mapsCreated);
+            }
+
+            // 2. Crear la nueva estructura exclusiva para los mods
+            File modsDir = new File(baseDir, "mods");
+            File modMapsDir = new File(baseDir, "mods/maps");
+            File modShadersDir = new File(baseDir, "mods/shaders");
+            File modUiDir = new File(baseDir, "mods/UI");
+            File modScriptsDir = new File(baseDir, "mods/scripts");
+
+            if (!modsDir.exists()) modsDir.mkdirs();
+            if (!modMapsDir.exists()) modsDir.mkdirs();
+            if (!modShadersDir.exists()) modShadersDir.mkdirs();
+            if (!modUiDir.exists()) modUiDir.mkdirs();
+            if (!modScriptsDir.exists()) modScriptsDir.mkdirs();
+
+            Log.i(TAG, "Estructura de directorios de mods lista en: " + baseDir.getAbsolutePath());
+        } else {
+            Log.e(TAG, "Error crítico: No se pudo obtener el almacenamiento externo.");
+        }
     }
 
     /** the system's file picker, for the touch layout; no storage permission */
